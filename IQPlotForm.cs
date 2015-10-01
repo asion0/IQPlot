@@ -70,7 +70,7 @@ namespace IQPlot
             dopplerChart.ChartAreas[0].AxisX.IntervalAutoMode = IntervalAutoMode.VariableCount;
             dopplerChart.ChartAreas[0].AxisX.IntervalOffsetType = DateTimeIntervalType.Auto;
             dopplerChart.ChartAreas[0].AxisX.Minimum = 0.0;
-            dopplerChart.ChartAreas[0].AxisX.Maximum = 500.0;
+            dopplerChart.ChartAreas[0].AxisX.Maximum = maxLineSize;
 
 
             iqChart.Show();
