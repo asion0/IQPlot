@@ -178,7 +178,7 @@ namespace IQPlot
                         int ptr = 0;
                         int sharpLen = 0;
                         byte[] buff = new byte[BufferSize];
-
+                        System.Diagnostics.Debug.WriteLine("Create Named Pipe :" + Program.pipeName);
                         //Wait for connection
                         while (!worker.CancellationPending)
                         {
@@ -226,6 +226,7 @@ namespace IQPlot
                             {
                                 return;
                             }
+                            System.Diagnostics.Debug.Write(buff[ptr - 1]);
 
                             if (rs == ReceiveStatus.None && buff[ptr - 1] == '#')
                             {
