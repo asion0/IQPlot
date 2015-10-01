@@ -23,6 +23,7 @@ namespace IQPlot
                 pipeName = args[0];
             }
             System.Diagnostics.Debug.WriteLine("pipeName :" + pipeName);
+            System.Diagnostics.Debug.WriteLine("23456");
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
