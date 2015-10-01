@@ -18,7 +18,10 @@ namespace IQPlot
                 Port = args[0];
                 BaudRate = Convert.ToInt32(args[1]);
             }
-
+            if(args.Length > 0)
+            {
+                pipeName = args[0];
+            }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new IQPlotForm());
@@ -26,5 +29,6 @@ namespace IQPlot
 
         public static string Port = "COM3";
         public static int BaudRate = 9600;
+        public static string pipeName = "SkytraqIQPlotPipe";
     }
 }

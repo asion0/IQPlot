@@ -170,7 +170,7 @@ namespace IQPlot
                 //Initial Namedpipe ===========================================
                 while (!worker.CancellationPending)
                 {
-                    using (NamedPipeServerStream pipeStream = new NamedPipeServerStream("SkytraqIQPlotPipe",
+                    using (NamedPipeServerStream pipeStream = new NamedPipeServerStream(Program.pipeName,
                         PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous))
                     {
                         ReceiveStatus rs = ReceiveStatus.None;
