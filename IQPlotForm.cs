@@ -132,6 +132,7 @@ namespace IQPlot
             int count = 0;
             BackgroundWorker worker = sender as BackgroundWorker;
             const int BufferSize = 256;
+            System.Diagnostics.Debug.WriteLine("Start Background Worker");
 
             if (dataSource == SourceFrom.UART)
             {
@@ -170,6 +171,7 @@ namespace IQPlot
                 //Initial Namedpipe ===========================================
                 while (!worker.CancellationPending)
                 {
+                    System.Diagnostics.Debug.WriteLine("Pipe name :" + Program.pipeName);
                     using (NamedPipeServerStream pipeStream = new NamedPipeServerStream(Program.pipeName,
                         PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous))
                     {

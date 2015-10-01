@@ -22,6 +22,8 @@ namespace IQPlot
             {
                 pipeName = args[0];
             }
+            System.Diagnostics.Debug.WriteLine("pipeName :" + pipeName);
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new IQPlotForm());
