@@ -48,6 +48,9 @@ namespace IQPlot
                     return;
                 }
             }
+            //Show version in title
+            this.Text += " " + Application.ProductVersion;
+
             //Initial IQ Chart ===========================================
             iqChart.Series[0].MarkerBorderColor = Color.Blue;
             iqChart.Series[0].MarkerColor = Color.Transparent;
@@ -80,11 +83,15 @@ namespace IQPlot
 
         public class IQInfo
         {
-            public IQInfo(Byte tp, UInt32 sv, Byte ti, Int32 dp, Int16 i, Int16 q)
+            public IQInfo(Byte tp, UInt32 sv, Byte cl, Byte cn0, Byte ti, Byte div, Byte cs, Int32 dp, Int16 i, Int16 q)
             {
                 gpsType = tp;
                 nmeaSvid = sv;
+                hwcl = cl;
+                this.cn0 = cn0;
                 integrateionTime = ti;
+                divider = div;
+                cycleSlip = cs;
                 doppler = dp;
                 iValue = i;
                 qValue = q;
@@ -92,7 +99,11 @@ namespace IQPlot
             
             public Byte gpsType;
             public UInt32 nmeaSvid;
+            public Byte hwcl;
+            public Byte cn0;
             public Byte integrateionTime;
+            public Byte divider;
+            public Byte cycleSlip;
             public Int32 doppler;
             public Int16 iValue;
             public Int16 qValue;
@@ -153,9 +164,13 @@ namespace IQPlot
                             buff[6],
                             (UInt32)buff[7] << 8 | (UInt32)buff[8],
                             buff[9],
-                            (Int32)((UInt32)buff[10] << 24 | (UInt32)buff[11] << 16 | (UInt32)buff[12] << 8 | (UInt32)buff[13]),
-                            (Int16)((UInt32)buff[14] << 8 | (UInt32)buff[15]),
-                            (Int16)((UInt32)buff[16] << 8 | (UInt32)buff[17])));
+                            buff[10],
+                            buff[11],
+                            buff[12],
+                            buff[13],
+                            (Int32)((UInt32)buff[14] << 24 | (UInt32)buff[15] << 16 | (UInt32)buff[16] << 8 | (UInt32)buff[17]),
+                            (Int16)((UInt32)buff[18] << 8 | (UInt32)buff[19]),
+                            (Int16)((UInt32)buff[20] << 8 | (UInt32)buff[21])));
 
                         //Console.WriteLine("{0},{1},{2},{3},{4},{5}",
                         //    gpsType, nmeaSvid, integrateionTime, doppler, iValue, qValue);
@@ -305,9 +320,13 @@ namespace IQPlot
                                     buff[6],
                                     (UInt32)buff[7] << 8 | (UInt32)buff[8],
                                     buff[9],
-                                    (Int32)((UInt32)buff[10] << 24 | (UInt32)buff[11] << 16 | (UInt32)buff[12] << 8 | (UInt32)buff[13]),
-                                    (Int16)((UInt32)buff[14] << 8 | (UInt32)buff[15]),
-                                    (Int16)((UInt32)buff[16] << 8 | (UInt32)buff[17])));
+                                    buff[10],
+                                    buff[11],
+                                    buff[12],
+                                    buff[13],
+                                    (Int32)((UInt32)buff[14] << 24 | (UInt32)buff[15] << 16 | (UInt32)buff[16] << 8 | (UInt32)buff[17]),
+                                    (Int16)((UInt32)buff[18] << 8 | (UInt32)buff[19]),
+                                    (Int16)((UInt32)buff[20] << 8 | (UInt32)buff[21])));
                                 rs = ReceiveStatus.None;
                                 ptr = 0;
                             }
@@ -486,8 +505,12 @@ namespace IQPlot
                     break;
             }
             svidLbl.Text = iq.nmeaSvid.ToString();
-            ingTimeLbl.Text = iq.integrateionTime.ToString();
+            ingTimeLbl.Text = iq.integrateionTime.ToString() + " / " + iq.divider.ToString();
             freqLbl.Text = iq.doppler.ToString();
+            clLbl.Text = (iq.hwcl == 0) ? "HWCL" : "SWCL";
+            cn0Lbl.Text = iq.cn0.ToString();
+            //dividerLbl.Text = iq.divider.ToString();
+            csLbl.Text = iq.cycleSlip.ToString();
 
             AddIQ(iq.nmeaSvid, iq.iValue, iq.qValue);
             AddDoppler(e.ProgressPercentage, iq.doppler);
@@ -589,6 +612,21 @@ namespace IQPlot
         private void autoChk_CheckedChanged(object sender, EventArgs e)
         {
             iqChart.Invalidate();
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label10_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void csLbl_Click(object sender, EventArgs e)
+        {
+
         }
     }
 
