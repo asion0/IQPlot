@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Threading;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.IO.Pipes;
 using System.IO;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace IQPlot
 {
@@ -30,7 +28,7 @@ namespace IQPlot
         private SourceFrom dataSource = SourceFrom.NamedPipe;
 
 
-        private const int WorkerCount = 1;
+        private const int WorkerCount = 2;
         private SkytraqGps[] gps = new SkytraqGps[WorkerCount];
         private void IQPlotForm_Load(object sender, EventArgs e)
         {
@@ -75,10 +73,38 @@ namespace IQPlot
             dopplerChart.ChartAreas[0].AxisX.Minimum = 0.0;
             dopplerChart.ChartAreas[0].AxisX.Maximum = maxLineSize;
 
+            String stime = DateTime.Now.ToString("yyyyMMdd-hhmmss");
+            logPath = String.Format("{0}\\IQPlotLog{1}", Directory.GetCurrentDirectory(), stime);
+            //"Type,SVID,HWCL,CN0,Integrateion Time,Divider,Cycle Slip,I,Q,Dopper"
+            if (File.Exists(logPath + ".csv"))
+            {
+                int i = 1;
+                for(; i < 1000; ++i)
+                {
+                    String f = String.Format("{0}({1}).csv", logPath, i);
+                    if (!File.Exists(f))
+                    {
+                        break;
+                    }
+                }
+                logPath = String.Format("{0}({1}).csv", logPath, i);
+            }
+            else
+            {
+                logPath += ".csv";
+            }
+            logLbl.Text = logPath;
+            // Create a file to write to.  
+            using (StreamWriter sw = File.CreateText(logPath))
+            {
+                sw.WriteLine("Time,Type,SVID,HWCL,CN0,Integrateion Time,Divider,Cycle Slip,I,Q,Dopper");
+            }
 
             iqChart.Show();
             ++workerCount;
             bkWorker[0].RunWorkerAsync(gps[0]);
+            ++workerCount;
+            bkWorker[1].RunWorkerAsync(gps[1]);
         }
 
         public class IQInfo
@@ -96,7 +122,21 @@ namespace IQPlot
                 iValue = i;
                 qValue = q;
             }
-            
+
+            public IQInfo(IQInfo iq)
+            {
+                gpsType = iq.gpsType;
+                nmeaSvid = iq.nmeaSvid;
+                hwcl = iq.hwcl;
+                cn0 = iq.cn0;
+                integrateionTime = iq.integrateionTime;
+                divider = iq.divider;
+                cycleSlip = iq.cycleSlip;
+                doppler = iq.doppler;
+                iValue = iq.iValue;
+                qValue = iq.qValue;
+            }
+
             public Byte gpsType;
             public UInt32 nmeaSvid;
             public Byte hwcl;
@@ -112,15 +152,21 @@ namespace IQPlot
         private BackgroundWorker[] bkWorker = new BackgroundWorker[WorkerCount];
         private void InitBackgroundWorker()
         {
-            for (int i = 0; i < WorkerCount; ++i)
-            {
-                bkWorker[i] = new BackgroundWorker();
-                bkWorker[i].WorkerReportsProgress = true;
-                bkWorker[i].WorkerSupportsCancellation = true;
-                bkWorker[i].DoWork += new DoWorkEventHandler(bw_DoWork);
-                bkWorker[i].ProgressChanged += new ProgressChangedEventHandler(bw_ProgressChanged);
-                bkWorker[i].RunWorkerCompleted += new RunWorkerCompletedEventHandler(bw_RunWorkerCompleted);
-            }
+
+            bkWorker[0] = new BackgroundWorker();
+            bkWorker[0].WorkerReportsProgress = true;
+            bkWorker[0].WorkerSupportsCancellation = true;
+            bkWorker[0].DoWork += new DoWorkEventHandler(bw_DoWork);
+            bkWorker[0].ProgressChanged += new ProgressChangedEventHandler(bw_ProgressChanged);
+            bkWorker[0].RunWorkerCompleted += new RunWorkerCompletedEventHandler(bw_RunWorkerCompleted);
+
+            bkWorker[1] = new BackgroundWorker();
+            bkWorker[1].WorkerReportsProgress = true;
+            bkWorker[1].WorkerSupportsCancellation = true;
+            bkWorker[1].DoWork += new DoWorkEventHandler(bwLog_DoWork);
+            bkWorker[1].ProgressChanged += new ProgressChangedEventHandler(bwLog_ProgressChanged);
+            bkWorker[1].RunWorkerCompleted += new RunWorkerCompletedEventHandler(bwLog_RunWorkerCompleted);
+
         }
 
         enum ReceiveStatus
@@ -351,9 +397,6 @@ namespace IQPlot
                     }   //using (NamedPipeServerStream pipeStrea...
                 }
             }   //if (dataSource == SourceFrom.UART) else
-
-
-
         }   //private void bw_DoWork(object sender, DoWorkEventArgs e)
 
         private int maxPointsSize = 100;
@@ -471,6 +514,48 @@ namespace IQPlot
             dopplerChart.Series.SuspendUpdates();
 
         }
+ 
+        private Queue<IQInfo> iqQueue = new Queue<IQInfo>();
+        String logPath = "";
+        //"Type,SVID,HWCL,CN0,Integrateion Time,Divider,Cycle Slip,I,Q,Dopper"
+        private void bwLog_DoWork(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+            while (!worker.CancellationPending)
+            {
+                if (iqQueue.Count == 0)
+                {
+                    Thread.Sleep(50);
+                    continue;
+                }
+
+                IQInfo iq = iqQueue.Dequeue();
+                // This text is always added, making the file longer over time  
+                // if it is not deleted.  
+                try {
+                    using (StreamWriter sw = File.AppendText(logPath))
+                    {
+                        //"Time,Type,SVID,HWCL,CN0,Integrateion Time,Divider,Cycle Slip,I,Q,Dopper"
+                        String s = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}",
+                            DateTime.Now.ToString("HH:mm:ss.fff"), iq.gpsType, iq.nmeaSvid, iq.hwcl, iq.cn0, 
+                            iq.integrateionTime, iq.divider, iq.cycleSlip, iq.iValue, iq.qValue, iq.doppler);
+                        sw.WriteLine(s);
+                    }
+                }
+                catch(Exception e1)
+                {
+                    Console.WriteLine(e1.ToString());
+                }
+            }
+
+
+        }
+
+        private void PushIqInfo(IQInfo iq)
+        {
+            iqQueue.Enqueue(iq);
+            Console.WriteLine(iqQueue.Count);
+        }
 
         private void bw_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
@@ -480,6 +565,7 @@ namespace IQPlot
             }
 
             IQInfo iq = e.UserState as IQInfo;
+            PushIqInfo(iq);
             switch(iq.gpsType)
             {
                 case 1:
@@ -516,12 +602,30 @@ namespace IQPlot
             AddDoppler(e.ProgressPercentage, iq.doppler);
         }
 
+        private void bwLog_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            if (workerCount == 0)
+            {
+                return;
+            }
+        }
+
         //執行完成
         private void bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             BackgroundWorker b = (sender as BackgroundWorker);
             --workerCount;
             if(workerCount == 0)
+            {
+                this.Close();
+            }
+        }
+
+        private void bwLog_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            BackgroundWorker b = (sender as BackgroundWorker);
+            --workerCount;
+            if (workerCount == 0)
             {
                 this.Close();
             }
@@ -614,19 +718,9 @@ namespace IQPlot
             iqChart.Invalidate();
         }
 
-        private void label1_Click(object sender, EventArgs e)
+        private void openLogBtn_Click(object sender, EventArgs e)
         {
-
-        }
-
-        private void label10_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void csLbl_Click(object sender, EventArgs e)
-        {
-
+            Process.Start("explorer.exe", "/select, \"" + logPath + "\"");
         }
     }
 
