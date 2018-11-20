@@ -33,7 +33,8 @@ using System.Runtime.InteropServices;
 // 指定為預設值:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("1.0.0.2")]
-[assembly: AssemblyFileVersion("1.0.0.2")]
+[assembly: AssemblyVersion("1.0.0.3")]
+[assembly: AssemblyFileVersion("1.0.0.3")]
 
+//V1.0.0.3 20170423 Add NAVIC in gpsType, Request from Terrance
 //V1.0.0.2 20160712 Add log function, Request from Terrance

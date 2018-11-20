@@ -586,6 +586,9 @@ namespace IQPlot
                 case 6:
                     typeLbl.Text = "BD2";
                     break;
+                case 7:
+                    typeLbl.Text = "NAVIC";
+                    break;
                 default:
                     typeLbl.Text = "";
                     break;
