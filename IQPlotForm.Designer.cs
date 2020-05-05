@@ -63,6 +63,8 @@
             this.logLbl = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.openLogBtn = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
+            this.channelLbl = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.iqChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dopplerChart)).BeginInit();
             this.SuspendLayout();
@@ -191,7 +193,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Segoe UI Symbol", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(160, 38);
+            this.label2.Location = new System.Drawing.Point(386, 38);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(44, 21);
             this.label2.TabIndex = 4;
@@ -201,7 +203,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Segoe UI Symbol", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(283, 38);
+            this.label3.Location = new System.Drawing.Point(509, 38);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(150, 21);
             this.label3.TabIndex = 4;
@@ -222,7 +224,7 @@
             this.svidLbl.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.svidLbl.Font = new System.Drawing.Font("Segoe UI Symbol", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.svidLbl.ForeColor = System.Drawing.Color.Blue;
-            this.svidLbl.Location = new System.Drawing.Point(210, 38);
+            this.svidLbl.Location = new System.Drawing.Point(436, 38);
             this.svidLbl.Name = "svidLbl";
             this.svidLbl.Size = new System.Drawing.Size(64, 20);
             this.svidLbl.TabIndex = 4;
@@ -232,7 +234,7 @@
             this.ingTimeLbl.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.ingTimeLbl.Font = new System.Drawing.Font("Segoe UI Symbol", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ingTimeLbl.ForeColor = System.Drawing.Color.Blue;
-            this.ingTimeLbl.Location = new System.Drawing.Point(439, 38);
+            this.ingTimeLbl.Location = new System.Drawing.Point(665, 38);
             this.ingTimeLbl.Name = "ingTimeLbl";
             this.ingTimeLbl.Size = new System.Drawing.Size(64, 20);
             this.ingTimeLbl.TabIndex = 4;
@@ -405,6 +407,26 @@
             this.openLogBtn.UseVisualStyleBackColor = true;
             this.openLogBtn.Click += new System.EventHandler(this.openLogBtn_Click);
             // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Segoe UI Symbol", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label7.Location = new System.Drawing.Point(160, 38);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(67, 21);
+            this.label7.TabIndex = 4;
+            this.label7.Text = "Channel";
+            // 
+            // channelLbl
+            // 
+            this.channelLbl.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.channelLbl.Font = new System.Drawing.Font("Segoe UI Symbol", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.channelLbl.ForeColor = System.Drawing.Color.Blue;
+            this.channelLbl.Location = new System.Drawing.Point(229, 38);
+            this.channelLbl.Name = "channelLbl";
+            this.channelLbl.Size = new System.Drawing.Size(150, 20);
+            this.channelLbl.TabIndex = 4;
+            // 
             // IQPlotForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -421,6 +443,7 @@
             this.Controls.Add(this.logLbl);
             this.Controls.Add(this.svidLbl);
             this.Controls.Add(this.clLbl);
+            this.Controls.Add(this.channelLbl);
             this.Controls.Add(this.typeLbl);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label6);
@@ -428,6 +451,7 @@
             this.Controls.Add(this.label10);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label8);
+            this.Controls.Add(this.label7);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.dopplerChart);
@@ -477,6 +501,8 @@
         private System.Windows.Forms.Label logLbl;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Button openLogBtn;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label channelLbl;
     }
 }
 

@@ -109,9 +109,10 @@ namespace IQPlot
 
         public class IQInfo
         {
-            public IQInfo(Byte tp, UInt32 sv, Byte cl, Byte cn0, Byte ti, Byte div, Byte cs, Int32 dp, Int16 i, Int16 q)
+            public IQInfo(Byte tp, Byte cnl, UInt32 sv, Byte cl, Byte cn0, Byte ti, Byte div, Byte cs, Int32 dp, Int16 i, Int16 q)
             {
                 gpsType = tp;
+                gnssChannel = cnl;
                 nmeaSvid = sv;
                 hwcl = cl;
                 this.cn0 = cn0;
@@ -126,6 +127,7 @@ namespace IQPlot
             public IQInfo(IQInfo iq)
             {
                 gpsType = iq.gpsType;
+                gnssChannel = iq.gnssChannel;
                 nmeaSvid = iq.nmeaSvid;
                 hwcl = iq.hwcl;
                 cn0 = iq.cn0;
@@ -136,8 +138,26 @@ namespace IQPlot
                 iValue = iq.iValue;
                 qValue = iq.qValue;
             }
+            
+            public string GetChannelString()
+            {
+                string[,] strTable = new string[7, 7] 
+                { 
+                    { "GPS-L1", "GPS-L2C", "", "GPS-L1C", "GPS-L5", "", "" }, 
+                    { "SBAS-L1", "", "", "", "SBAS-L5", "", "" },
+                    { "GLONASS-L1", "GLONASS-L2C", "GLONASS-L3OC", "", "", "", "" }, 
+                    { "GAL-E1", "", "GAL-E5b", "", "GAL-E5a", "GAL-E6", "", }, 
+                    { "QZSS-L1", "QZSS-L2C", "", "QZSS-L1C", "QZSS-L5", "QZSS-L6-LEX", "" }, 
+                    { "BEIDOU-B1I", "BEIDOU-B2I", "BEIDOU-B3I", "BEIDOU-B1C", "BEIDOU-B2a", "", "" }, 
+                    { "", "", "", "", "NAVIC-L5", "", "NAVIC-S" } 
+                };
+                if (gpsType >= 7 || gnssChannel >= 7)
+                    return "";
 
+                return strTable[gpsType - 1, gnssChannel - 1];
+            }
             public Byte gpsType;
+            public Byte gnssChannel;
             public UInt32 nmeaSvid;
             public Byte hwcl;
             public Byte cn0;
@@ -188,7 +208,7 @@ namespace IQPlot
         {
             int count = 0;
             BackgroundWorker worker = sender as BackgroundWorker;
-            const int BufferSize = 256;
+            const int BufferSize = 2048;
             System.Diagnostics.Debug.WriteLine("Start Background Worker");
 
             if (dataSource == SourceFrom.UART)
@@ -199,7 +219,7 @@ namespace IQPlot
                 {
                     while (!worker.CancellationPending)
                     {
-                        int l = gps.ReadLineNoWait(buff, 256, 1000);
+                        int l = gps.ReadLineNoWait(buff, BufferSize, 1000);
                         if (buff[0] != 0xa0 || buff[1] != 0xa1 || buff[4] != 0x64 || buff[5] != 0xfd)
                         {
                             continue;
@@ -208,15 +228,16 @@ namespace IQPlot
 
                         worker.ReportProgress(count, new IQInfo(
                             buff[6],
-                            (UInt32)buff[7] << 8 | (UInt32)buff[8],
-                            buff[9],
+                            buff[7],
+                            (UInt32)buff[8] << 8 | (UInt32)buff[9],
                             buff[10],
                             buff[11],
                             buff[12],
                             buff[13],
-                            (Int32)((UInt32)buff[14] << 24 | (UInt32)buff[15] << 16 | (UInt32)buff[16] << 8 | (UInt32)buff[17]),
-                            (Int16)((UInt32)buff[18] << 8 | (UInt32)buff[19]),
-                            (Int16)((UInt32)buff[20] << 8 | (UInt32)buff[21])));
+                            buff[14],
+                            (Int32)((UInt32)buff[15] << 24 | (UInt32)buff[16] << 16 | (UInt32)buff[17] << 8 | (UInt32)buff[18]),
+                            (Int16)((UInt32)buff[19] << 8 | (UInt32)buff[20]),
+                            (Int16)((UInt32)buff[21] << 8 | (UInt32)buff[22])));
 
                         //Console.WriteLine("{0},{1},{2},{3},{4},{5}",
                         //    gpsType, nmeaSvid, integrateionTime, doppler, iValue, qValue);
@@ -364,15 +385,16 @@ namespace IQPlot
 
                                 worker.ReportProgress(count, new IQInfo(
                                     buff[6],
-                                    (UInt32)buff[7] << 8 | (UInt32)buff[8],
-                                    buff[9],
+                                    buff[7],
+                                    (UInt32)buff[8] << 8 | (UInt32)buff[9],
                                     buff[10],
                                     buff[11],
                                     buff[12],
                                     buff[13],
-                                    (Int32)((UInt32)buff[14] << 24 | (UInt32)buff[15] << 16 | (UInt32)buff[16] << 8 | (UInt32)buff[17]),
-                                    (Int16)((UInt32)buff[18] << 8 | (UInt32)buff[19]),
-                                    (Int16)((UInt32)buff[20] << 8 | (UInt32)buff[21])));
+                                    buff[14],
+                                    (Int32)((UInt32)buff[15] << 24 | (UInt32)buff[16] << 16 | (UInt32)buff[17] << 8 | (UInt32)buff[18]),
+                                    (Int16)((UInt32)buff[19] << 8 | (UInt32)buff[20]),
+                                    (Int16)((UInt32)buff[21] << 8 | (UInt32)buff[22])));
                                 rs = ReceiveStatus.None;
                                 ptr = 0;
                             }
@@ -536,8 +558,8 @@ namespace IQPlot
                     using (StreamWriter sw = File.AppendText(logPath))
                     {
                         //"Time,Type,SVID,HWCL,CN0,Integrateion Time,Divider,Cycle Slip,I,Q,Dopper"
-                        String s = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}",
-                            DateTime.Now.ToString("HH:mm:ss.fff"), iq.gpsType, iq.nmeaSvid, iq.hwcl, iq.cn0, 
+                        String s = String.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11}",
+                            DateTime.Now.ToString("HH:mm:ss.fff"), iq.gpsType, iq.gnssChannel, iq.nmeaSvid, iq.hwcl, iq.cn0, 
                             iq.integrateionTime, iq.divider, iq.cycleSlip, iq.iValue, iq.qValue, iq.doppler);
                         sw.WriteLine(s);
                     }
@@ -593,6 +615,34 @@ namespace IQPlot
                     typeLbl.Text = "";
                     break;
             }
+            channelLbl.Text = iq.GetChannelString();
+            //switch(iq.gnssChannel)
+            //{
+            //    case 1:
+            //        channelLbl.Text = "CHANNEL_1";
+            //        break;
+            //    case 2:
+            //        channelLbl.Text = "CHANNEL_2";
+            //        break;
+            //    case 3:
+            //        channelLbl.Text = "CHANNEL_3";
+            //        break;
+            //    case 4:
+            //        channelLbl.Text = "CHANNEL_1C";
+            //        break;
+            //    case 5:
+            //        channelLbl.Text = "CHANNEL_5";
+            //        break;
+            //    case 6:
+            //        channelLbl.Text = "CHANNEL_6";
+            //        break;
+            //    case 7:
+            //        channelLbl.Text = "CHANNEL_S";
+            //        break;
+            //    default:
+            //        channelLbl.Text = "";
+            //        break;
+            //}            
             svidLbl.Text = iq.nmeaSvid.ToString();
             ingTimeLbl.Text = iq.integrateionTime.ToString() + " / " + iq.divider.ToString();
             freqLbl.Text = iq.doppler.ToString();
