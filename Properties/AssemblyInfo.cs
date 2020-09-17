@@ -33,9 +33,10 @@ using System.Runtime.InteropServices;
 // 指定為預設值:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("1.0.0.4")]
-[assembly: AssemblyFileVersion("1.0.0.4")]
+[assembly: AssemblyVersion("1.0.0.5")]
+[assembly: AssemblyFileVersion("1.0.0.5")]
 
+//V1.0.0.5 20200811 Change Galileo GAL-E5b from channel 3 to channel 2, request from Eric
 //V1.0.0.4 20191004 Add GNSS channel for multi frequency, request from Eric
 //V1.0.0.3 20170423 Add NAVIC in gpsType, request from Terrance
 //V1.0.0.2 20160712 Add log function, request from Terrance

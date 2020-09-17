@@ -146,7 +146,7 @@ namespace IQPlot
                     { "GPS-L1", "GPS-L2C", "", "GPS-L1C", "GPS-L5", "", "" }, 
                     { "SBAS-L1", "", "", "", "SBAS-L5", "", "" },
                     { "GLONASS-L1", "GLONASS-L2C", "GLONASS-L3OC", "", "", "", "" }, 
-                    { "GAL-E1", "", "GAL-E5b", "", "GAL-E5a", "GAL-E6", "", }, 
+                    { "GAL-E1", "GAL-E5b", "GAL-E5b", "", "GAL-E5a", "GAL-E6", "", }, 
                     { "QZSS-L1", "QZSS-L2C", "", "QZSS-L1C", "QZSS-L5", "QZSS-L6-LEX", "" }, 
                     { "BEIDOU-B1I", "BEIDOU-B2I", "BEIDOU-B3I", "BEIDOU-B1C", "BEIDOU-B2a", "", "" }, 
                     { "", "", "", "", "NAVIC-L5", "", "NAVIC-S" } 
